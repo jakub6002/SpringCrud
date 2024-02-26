@@ -20,7 +20,7 @@ public class Garage {
     private String address;
     private Boolean lpgAllowed;
 
-    @OneToMany(mappedBy = "garage")
+    @OneToMany(mappedBy = "garage", fetch = FetchType.EAGER)
     private Set<Car> cars = new HashSet<>();
 
 

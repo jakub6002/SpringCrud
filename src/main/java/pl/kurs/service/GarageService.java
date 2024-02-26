@@ -1,7 +1,9 @@
 package pl.kurs.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.kurs.exceptions.CarNotFoundException;
 import pl.kurs.exceptions.GarageNotFoundException;
@@ -17,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GarageService {
 
     private final GarageRepository garageRepository;
@@ -67,15 +70,56 @@ public class GarageService {
 
     public void addCarToGarage(int id, int carId) {
         Garage garage = garageRepository.findById(id).orElseThrow(GarageNotFoundException::new);
-        Car car = carRepository.findById(id).orElseThrow(CarNotFoundException::new);
+        Car car = carRepository.findById(carId).orElseThrow(CarNotFoundException::new);
         garage.addCar(car);
-        carRepository.saveAndFlush(car);
+        garageRepository.saveAndFlush(garage);
     }
 
     public void removeCarFromGarage(int id, int carId) {
         Garage garage = garageRepository.findById(id).orElseThrow(GarageNotFoundException::new);
-        Car car = carRepository.findById(id).orElseThrow(CarNotFoundException::new);
+        Car car = carRepository.findById(carId).orElseThrow(CarNotFoundException::new);
         garage.remove(car);
-        carRepository.saveAndFlush(car);
+        garageRepository.saveAndFlush(garage);
     }
+
+
+//    @Transactional
+//    public void playWithTransactions() {
+//        log.info("-------------------");
+//        Garage g1 = garageRepository.findById(1).get();
+//        Garage g2 = garageRepository.findById(1).get();
+//        log.info("G1 == G2: " + (g1 == g2));
+//        log.info("-------------------");
+//    }
+
+//    @Transactional
+//    public void playWithTransactions() {
+//        log.info("-------------------");
+//        Garage g1 = garageRepository.findById(1).get();
+//        g1.setAddress("Nowy adres");
+//        log.info("-------------------");
+//    }
+
+//    @Transactional
+//    public void playWithTransactions() {
+//        log.info("-------------------");
+//        Garage g1 = garageRepository.findById(1).get();
+//        Garage g2 = garageRepository.findById(2).get();
+//        g1.setAddress("Nowy adres");
+//        g2.setAddress("Nowy adres 2");
+//        garageRepository.saveAndFlush(g1);
+//        log.info("-------------------");
+//    }
+
+    @Transactional
+    public void playWithTransactions() {
+        log.info("-------------------");
+        Garage g1 = garageRepository.findById(1).get();
+        log.info("{} ma samochodow: {}", g1.getAddress(), g1.getCars().size());
+        log.info("-------------------");
+    }
+
+    // TODO: rozpoczac od EQGERA Z wieloma garazami
+
 }
+
