@@ -55,7 +55,6 @@ public class CarControllerTest {
                 .getContentAsString();
 
 
-
         // Assert
         Car savedCar = objectMapper.readValue(responseJson, Car.class);
         Car recentlyAdded = carRepository.findById(savedCar.getId()).get();
@@ -110,5 +109,44 @@ public class CarControllerTest {
                 .andExpect(jsonPath("$.fuelType").value("Pb"));
     }
 
+    @Test
+    void shouldDeleteCar() throws Exception {
+        // Given
+        Car car = new Car("ToRetrieve", "ToRetrieveModel", "Pb");
+        carRepository.saveAndFlush(car);
+
+        // When & Then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/cars/" + car.getId()))
+                .andExpect(status().isNoContent());
+
+        // Assert
+        Assertions.assertFalse(carRepository.existsById(car.getId()));
+    }
+
+    @Test
+    void shouldPatchCar() throws Exception {
+        // Given
+        Car car = new Car("ToPatch", "ToPatchModel", "Pb");
+        carRepository.saveAndFlush(car);
+
+        String json = "{\n" +
+                "    \"brand\": \"UpdatedBrand\"\n" +
+                "}";
+
+        // When & Then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/cars/" + car.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(car.getId()))
+                .andExpect(jsonPath("$.brand").value("UpdatedBrand"));
+
+        // Assert
+        Car updatedCar = carRepository.findById(car.getId()).get();
+        Assertions.assertNotNull(updatedCar);
+        Assertions.assertEquals("UpdatedBrand", updatedCar.getBrand());
+    }
+
     // testy do delete, do patch, testy do dodania i usuniecia samochodu z garazu
+
 }

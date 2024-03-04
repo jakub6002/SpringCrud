@@ -12,6 +12,7 @@ import java.util.Set;
 @ToString(exclude = "cars")
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode
 public class Garage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
