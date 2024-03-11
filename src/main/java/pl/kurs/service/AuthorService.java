@@ -43,16 +43,16 @@ public class AuthorService {
         authorRepository.deleteById(id);
     }
 
-    public Author edit(EditAuthorCommand command) {
-        Author author = authorRepository.findById(command.getId()).orElseThrow(AuthorNotFoundException::new);
+    public Author edit(int id, EditAuthorCommand command) {
+        Author author = authorRepository.findById(id).orElseThrow(AuthorNotFoundException::new);
         author.setName(command.getFirstName());
         author.setSurname(command.getLastName());
         author.setBirthYear(command.getBirthDate());
         author.setDeathYear(command.getDeathDate());
         return authorRepository.saveAndFlush(author);
     }
-   public Author partiallyEdit(EditAuthorCommand command) {
-        Author author = authorRepository.findById(command.getId()).orElseThrow(AuthorNotFoundException::new);
+   public Author partiallyEdit(int id, EditAuthorCommand command) {
+        Author author = authorRepository.findById(id).orElseThrow(AuthorNotFoundException::new);
         Optional.ofNullable(command.getFirstName()).ifPresent(author::setName);
         Optional.ofNullable(command.getLastName()).ifPresent(author::setSurname);
         Optional.ofNullable(command.getBirthDate()).ifPresent(author::setBirthYear);

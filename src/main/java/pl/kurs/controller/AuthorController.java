@@ -51,14 +51,14 @@ public class AuthorController {
     @PutMapping("/{id}")
     public ResponseEntity<AuthorDto> editAuthor(@PathVariable int id, @RequestBody EditAuthorCommand command) {
         log.info("editAuthor({}, {})", id, command);
-        Author author = authorService.edit(command);
+        Author author = authorService.edit(id, command);
         return ResponseEntity.status(HttpStatus.OK).body(AuthorDto.from(author));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<AuthorDto> editAuthorPartially(@PathVariable int id, @RequestBody EditAuthorCommand command) {
         log.info("editAuthorPartially({}, {})", id, command);
-        Author author = authorService.partiallyEdit(command);
+        Author author = authorService.partiallyEdit(id, command);
         return ResponseEntity.status(HttpStatus.OK).body(AuthorDto.from(author));
     }
 

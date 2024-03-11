@@ -2,6 +2,7 @@ package pl.kurs.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Chars;
 import org.springframework.stereotype.Service;
 import pl.kurs.exceptions.AuthorNotFoundException;
 import pl.kurs.model.Author;
@@ -11,6 +12,8 @@ import pl.kurs.model.command.EditBookCommand;
 import pl.kurs.repository.AuthorRepository;
 import pl.kurs.repository.BookRepository;
 
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,4 +63,12 @@ public class BookService {
     }
 
 
+    public void importBook(byte[] bytes) {
+        String content = new String(bytes, Charset.defaultCharset());
+
+        Arrays.stream(content.split("\r\n"))
+                .map(line -> line.split(","))
+                .map(args -> new CreateBookCommand(args))
+                .forEach(this::save);
+    }
 }

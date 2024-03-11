@@ -9,8 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.kurs.Main;
+import pl.kurs.model.Author;
 import pl.kurs.model.command.CreateAuthorCommand;
 import pl.kurs.model.command.EditAuthorCommand;
+import pl.kurs.repository.AuthorRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +28,8 @@ public class AuthorControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private AuthorRepository authorRepository;
 
     @Test
     public void shouldAddAuthor() throws Exception {
@@ -44,7 +48,6 @@ public class AuthorControllerTest {
         command.setLastName("Doe");
         command.setBirthDate(1805);
         command.setDeathDate(1855);
-        command.setId(1);
         mockMvc.perform(put("/api/v1/authors/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
@@ -67,14 +70,25 @@ public class AuthorControllerTest {
         mockMvc.perform(delete("/api/v1/authors/{id}", 1))
                 .andExpect(status().isNoContent());
     }
+
     @Test
     public void shouldPatchAuthor() throws Exception {
+        // Create a new Author and save it to the repository
+        Author author = authorRepository.saveAndFlush(new Author("John", "Doe", 1800, 1850));
+
+        // Get the ID of the saved author
+        int authorId = author.getId();
+
         EditAuthorCommand command = new EditAuthorCommand();
         command.setFirstName("Jane");
         command.setLastName("Doe");
-        mockMvc.perform(patch("/api/v1/authors/{id}", 1)
+
+        mockMvc.perform(patch("/api/v1/authors/{id}", authorId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(authorId))
+                .andExpect(jsonPath("$.firstName").value(command.getFirstName()))
+                .andExpect(jsonPath("$.lastName").value(command.getLastName()));
     }
 }

@@ -6,7 +6,8 @@ import pl.kurs.model.Car;
 import pl.kurs.model.Garage;
 
 import java.awt.print.Book;
-
+@Repository
 public interface CarRepository extends JpaRepository<Car,Integer> {
+
 
 }

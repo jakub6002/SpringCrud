@@ -32,5 +32,6 @@ public class Book {
         this.category = category;
         this.available = available;
         this.author = author;
+//        author.getBooks().add(this);
     }
 }

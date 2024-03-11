@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pl.kurs.exceptions.BookNotFoundException;
 import pl.kurs.model.Author;
 import pl.kurs.model.Book;
@@ -17,7 +18,9 @@ import pl.kurs.model.command.EditBookCommand;
 import pl.kurs.model.dto.BookDto;
 import pl.kurs.repository.AuthorRepository;
 import pl.kurs.repository.BookRepository;
+import pl.kurs.service.BookService;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +32,7 @@ public class BookController {
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
+    private final BookService bookService;
 
     @PostConstruct
     public void init() {
@@ -82,6 +86,11 @@ public class BookController {
         Optional.ofNullable(command.getAvailable()).ifPresent(book::setAvailable);
         Optional.ofNullable(command.getTitle()).ifPresent(book::setTitle);
         return ResponseEntity.status(HttpStatus.OK).body(BookDto.from(bookRepository.saveAndFlush(book)));
+    }
+
+    @PostMapping("/_import")
+    public void importBooks(@RequestPart("books")MultipartFile file) throws IOException {
+        bookService.importBook(file.getBytes());
     }
 
 

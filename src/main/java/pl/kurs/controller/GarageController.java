@@ -23,11 +23,6 @@ public class GarageController {
     private final GarageService garageService;
 
 
-    @GetMapping("/test")
-    public void test() {
-     garageService.playWithTransactions();
-    }
-
     @GetMapping
     public ResponseEntity<List<GarageDto>> findAll() {
         log.info("findAll()");
@@ -54,14 +49,14 @@ public class GarageController {
     @PutMapping("/{id}")
     public ResponseEntity<GarageDto> editGarage(@PathVariable int id, @RequestBody EditGarageCommand command) {
         log.info("editGarage({}, {})", id, command);
-        Garage garage = garageService.edit(command);
+        Garage garage = garageService.edit(id, command);
         return ResponseEntity.status(HttpStatus.OK).body(GarageDto.from(garage));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<GarageDto> editGaragePartially(@PathVariable int id, @RequestBody EditGarageCommand command) {
         log.info("editGaragePartially({}, {})", id, command);
-        Garage garage = garageService.partiallyEdit(command);
+        Garage garage = garageService.partiallyEdit(id, command);
         return ResponseEntity.status(HttpStatus.OK).body(GarageDto.from(garage));
     }
 

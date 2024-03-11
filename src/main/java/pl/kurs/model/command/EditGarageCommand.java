@@ -11,5 +11,4 @@ public class EditGarageCommand {
     private Integer places;
     private String address;
     private Boolean isLpgAllowed;
-    private Integer garageId;
 }

@@ -25,7 +25,7 @@ public class Car {
     private Garage garage;
 
 
-    public Car( String brand, String model, String fuelType) {
+    public Car(String brand, String model, String fuelType) {
         this.brand = brand;
         this.model = model;
         this.fuelType = fuelType;

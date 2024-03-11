@@ -13,4 +13,9 @@ public class CreateBookCommand {
     private String category;
     private Integer authorId;
 
+    public CreateBookCommand(String[] args) {
+        this.title = args[0];
+        this.category = args[1];
+        this.authorId = Integer.parseInt(args[2]);
+    }
 }
