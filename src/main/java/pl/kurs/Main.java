@@ -14,7 +14,7 @@ public class Main {
         SpringApplication.run(Main.class, args);
 
 //        try (BufferedWriter out = new BufferedWriter(new FileWriter("books.csv"))) {
-//            for (int i = 0; i < 100_000; i++) {
+//            for (int i = 0; i < 20_000_000; i++) {
 //                int randomAuthro = (int) (Math.random() * 2) + 1;
 //                out.write("title_" + i + ",ROMANCE," + randomAuthro);
 //                out.newLine();

@@ -90,8 +90,10 @@ public class BookController {
 
     @PostMapping("/_import")
     public void importBooks(@RequestPart("books")MultipartFile file) throws IOException {
-        bookService.importBook(file.getBytes());
+        bookService.importBook(file.getInputStream());
     }
+
+
 
 
 }
