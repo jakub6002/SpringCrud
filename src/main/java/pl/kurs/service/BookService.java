@@ -95,6 +95,7 @@ public class BookService {
         }
     }
 
+
     // sprawdzcie sobie na starcie jak to u was idzie i postarajcie poprawic ten wynik
     // 1) 20k-40k na sekunde mniej wiecej
     // 2) zeby zuzycie pamieci sie nie zwiekszylo
