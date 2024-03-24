@@ -76,15 +76,13 @@ public class BookService {
         AtomicInteger counter = new AtomicInteger(0);
         AtomicLong start = new AtomicLong(System.currentTimeMillis());
 
-        // Correct way to create a stream from an InputStream
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             reader.lines()
                     .map(line -> line.split(","))
-                    .map(args -> new CreateBookCommand(args)) // Ensure CreateBookCommand constructor accepts String[]
-                    .peek(command -> countTime(counter, start)) // Side effect for timing
-                    .forEach(this::save); // Ensure this method exists and matches signature
+                    .map(args -> new CreateBookCommand(args))
+                    .peek(command -> countTime(counter, start))
+                    .forEach(this::save);
         } catch (IOException e) {
-            // Handle the IOException
         }
     }
 
