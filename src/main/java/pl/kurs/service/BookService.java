@@ -15,6 +15,7 @@ import pl.kurs.repository.AuthorRepository;
 import pl.kurs.repository.BookRepository;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -75,13 +76,18 @@ public class BookService {
         AtomicInteger counter = new AtomicInteger(0);
         AtomicLong start = new AtomicLong(System.currentTimeMillis());
 
-
-        new BufferedReader(new InputStreamReader(inputStream).lines()
-                .map(line -> line.split(","))
-                .map(args -> new CreateBookCommand(args))
-                .peek(command -> countTime(counter, start))
-                .forEach(this::save);
+        // Correct way to create a stream from an InputStream
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            reader.lines()
+                    .map(line -> line.split(","))
+                    .map(args -> new CreateBookCommand(args)) // Ensure CreateBookCommand constructor accepts String[]
+                    .peek(command -> countTime(counter, start)) // Side effect for timing
+                    .forEach(this::save); // Ensure this method exists and matches signature
+        } catch (IOException e) {
+            // Handle the IOException
+        }
     }
+
 
     private void countTime(AtomicInteger counter, AtomicLong start) {
         if (counter.incrementAndGet() % 10000 == 0) {
