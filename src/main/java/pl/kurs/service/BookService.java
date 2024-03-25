@@ -1,9 +1,11 @@
 package pl.kurs.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.Chars;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.exceptions.AuthorNotFoundException;
 import pl.kurs.model.Author;
 import pl.kurs.model.Book;
@@ -12,17 +14,23 @@ import pl.kurs.model.command.EditBookCommand;
 import pl.kurs.repository.AuthorRepository;
 import pl.kurs.repository.BookRepository;
 
-import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final Book book;
+    private final EntityManager entityManager;
 
     @PostConstruct
     public void init() {
@@ -45,7 +53,7 @@ public class BookService {
     }
 
     public Book save(CreateBookCommand command) {
-        return bookRepository.saveAndFlush(new Book(command.getTitle(), command.getCategory(), true, authorRepository.findById(command.getAuthorId()).orElseThrow(AuthorNotFoundException::new)));
+        return bookRepository.save(new Book(command.getTitle(), command.getCategory(), true, authorRepository.findById(command.getAuthorId()).orElseThrow(AuthorNotFoundException::new)));
     }
 
     public Book edit(EditBookCommand command) {
@@ -63,12 +71,37 @@ public class BookService {
     }
 
 
-    public void importBook(byte[] bytes) {
-        String content = new String(bytes, Charset.defaultCharset());
+    @Transactional
+    public void importBook(InputStream inputStream) {
+        AtomicInteger counter = new AtomicInteger(0);
+        AtomicLong start = new AtomicLong(System.currentTimeMillis());
 
-        Arrays.stream(content.split("\r\n"))
-                .map(line -> line.split(","))
-                .map(args -> new CreateBookCommand(args))
-                .forEach(this::save);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            reader.lines()
+                    .map(line -> line.split(","))
+                    .map(args -> new CreateBookCommand(args))
+                    .peek(command -> countTime(counter, start))
+                    .forEach(this::save);
+        } catch (IOException e) {
+        }
     }
+
+
+    private void countTime(AtomicInteger counter, AtomicLong start) {
+        if (counter.incrementAndGet() % 10000 == 0) {
+            log.info("Imported: {} in {} ms", counter, (System.currentTimeMillis() - start.get()));
+            start.set(System.currentTimeMillis());
+            entityManager.clear();
+        }
+    }
+
+
+    // sprawdzcie sobie na starcie jak to u was idzie i postarajcie poprawic ten wynik
+    // 1) 20k-40k na sekunde mniej wiecej
+    // 2) zeby zuzycie pamieci sie nie zwiekszylo
+    // 3) wszystko albo nic
+    // 4) testy jakies
+
+
+
 }
